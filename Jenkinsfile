@@ -8,7 +8,14 @@ pipeline {
         }
         stage('Sonarqube SAST analysis') {
             steps {
-                sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=java-app -Dsonar.host.url=http://mydevsecops.eastus.cloudapp.azure.com:9000 -Dsonar.login=sqp_39bd95adb896ae5f06701ff80a5ee024327c8766'
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=java-app -Dsonar.host.url=http://mydevsecops.eastus.cloudapp.azure.com:9000 -Dsonar.login=sqp_39bd95adb896ae5f06701ff80a5ee024327c8766'
+                }
+                timeout (time: 3, unit: 'MINUTES') {
+                    script{
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
             }
         }
     }
