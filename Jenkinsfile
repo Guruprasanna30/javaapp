@@ -13,8 +13,18 @@ pipeline {
                 }
                 timeout (time: 3, unit: 'MINUTES') {
                     script{
-                        waitForQualityGate abortPipeline: true
+                        waitForQualityGate abortPipeline: false
                     }
+                }
+            }
+        }
+        stage('Vulnerability Scan - Pom') {
+            steps {
+                sh "mvn dependency-check:check"
+            }
+            post {
+                always {
+                    dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
                 }
             }
         }
